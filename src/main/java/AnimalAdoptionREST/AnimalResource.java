@@ -1,9 +1,6 @@
 package AnimalAdoptionREST;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.time.LocalDate;
@@ -12,16 +9,9 @@ import java.util.*;
 @Path("/animaladopt")
 public class AnimalResource {
 
-    @Path("/json")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public HashMap<String, Animal> getAnimals() {
-        return createAnimalMap();
-    }
-
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public String displayHTMLCarInfo() {
+    public String displayHTMLAnimalInfo() {
         return "<html><body> <h1>Animal Details</h1> <table border=\"1\"> <tr>"
                 + " <th>id</th>"
                 + " <th>name</th>"
@@ -39,21 +29,16 @@ public class AnimalResource {
                 + " <th>specialNeeds</th>"
                 + " <th>adoptionFee</th>"
                 + "</tr>"
-                + getmeatable(createAnimalMap()) +
+                + generateTable(getAnimals()) +
                 "</table></body></html>";
     }
 
-
-    @Path("/search/{id}")
+    @Path("/animalList")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Animal searchCar(@PathParam("id") String id) {
-        return createAnimalMap().get(id);
-    }
-
-
-    private HashMap<String, Animal> createAnimalMap() {
+    public HashMap<String, Animal> getAnimals() {
         HashMap<String, Animal> animalMap = new HashMap<>();
+
         animalMap.put("A001", new Animal("A001", "Buddy", "Dog", "Labrador", 3, "Male",
                 25.5, "Golden", LocalDate.of(2023, 1, 15), "Healthy",
                 true, true, "Friendly", "", 150.0));
@@ -69,7 +54,81 @@ public class AnimalResource {
         return animalMap;
     }
 
-    public String getmeatable(HashMap<String, Animal> animalHashMap) {
+    @Path("/search/id/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Animal searchById(@PathParam("id") String id) {
+        return getAnimals().get(id);
+    }
+
+    @Path("/search/names/{name}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public HashMap<String, Animal> searchByName(@PathParam("name") String name) {
+        HashMap<String, Animal> animalMap = new HashMap<>();
+        for (Animal animal : getAnimals().values()) {
+            if (animal.getName()    .equals(name)) {
+                animalMap.put(animal.getId(), animal);
+            }
+        }
+        return animalMap;
+    }
+
+    @Path("/search/species/{species}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public HashMap<String, Animal> searcBySpecies(@PathParam("species") String species) {
+        HashMap<String, Animal> animalMap = new HashMap<>();
+        for (Animal animal : getAnimals().values()) {
+            if (animal.getBreed().equals(species)) {
+                animalMap.put(animal.getId(), animal);
+            }
+        }
+        return animalMap;
+    }
+
+    @Path("/search/breed/{breed}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public HashMap<String, Animal> searchCar(@PathParam("breed") String breed) {
+        HashMap<String, Animal> animalMap = new HashMap<>();
+        for (Animal animal : getAnimals().values()) {
+            if (animal.getBreed().equals(breed)) {
+                animalMap.put(animal.getId(), animal);
+            }
+        }
+        return animalMap;
+    }
+
+    @Path("/sorted")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public HashMap<String, Animal> sortAnimals() {
+        List<Animal> listOfAnimals = new ArrayList<>(getAnimals().values());
+        listOfAnimals.sort(Comparator.comparing(Animal::getId));
+        LinkedHashMap<String, Animal> sortedAnimals = new LinkedHashMap<>();
+        for (Animal animal : listOfAnimals) {
+            sortedAnimals.put(animal.getId(), animal);
+        }
+        return sortedAnimals;
+    }
+
+    @Path("/specifyparameters")
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    public String sayClientParametersHello(@QueryParam("name") String name,
+                                           @QueryParam("species") String species,
+                                           @QueryParam("breed") String breed,
+                                           @QueryParam("age") String age) {
+        Animal animal = new Animal("A001", name, species, breed, Integer.parseInt(age), "Male", 25.5, "Golden",
+                LocalDate.of(2023, 1,
+                        15),
+                "Healthy", true, true, "Friendly", "", 150.0);
+
+        return animal.toString();
+    }
+
+    private String generateTable(HashMap<String, Animal> animalHashMap) {
         StringBuilder html = new StringBuilder();
 
         for (Animal a1 : animalHashMap.values()) {

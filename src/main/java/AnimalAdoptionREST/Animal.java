@@ -20,6 +20,7 @@ public class Animal {
     private String specialNeeds;
     private double adoptionFee;
 
+
     public Animal(String id, String name, String species, String breed, int age, String gender, double weight,
                   String color, LocalDate localDate, String healthStatus, boolean isVaccinated, boolean isNeutered, String temperament, String specialNeeds, double adoptionFee) {
         setId(id);
@@ -41,7 +42,7 @@ public class Animal {
 
     }
 
-
+    @Override
     public String toString() {
         return "Animal{" +
                 "id='" + getId() + '\'' +
